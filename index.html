@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <!-- viewport-fit=cover: Die App darf bis in die Ecken von iPhones mit "Notch" reichen.
+       Das CSS hält mit env(safe-area-inset-...) trotzdem Abstand zu den Rändern. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Anwesenheitsliste für das Training: Kinder abhaken, speichern, auswerten.">
+  <!-- Farbe der Browser-Leiste am Handy (hell/dunkel) -->
+  <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e1014" media="(prefers-color-scheme: dark)">
+  <!-- Damit die App vom Home-Bildschirm aus wie eine eigene App startet -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Anwesenheit">
+  <title>Anwesenheit</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%233d5afe'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="app">
+    <!-- ============ Kopfzeile ============ -->
+    <header class="kopfzeile">
+      <a class="marke" href="#training" aria-label="Anwesenheit – zur Startseite">
+        <span class="marke-logo"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg></span>
+        <span class="marke-text">Anwesenheit</span>
+      </a>
+      <div class="kopf-aktionen">
+        <!-- Zeigt den eingestellten Trainer und Standort. Tippen = ändern. -->
+        <button id="profil-knopf" class="profil-chip" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg>
+          <span id="profil-text">Einrichten</span>
+        </button>
+        <button id="farbmodus-knopf" class="icon-knopf" type="button" aria-label="Farbmodus wechseln"></button>
+      </div>
+    </header>
+
+    <!-- ============ Navigation ============
+         Am Handy unten (mit dem Daumen erreichbar), am großen Bildschirm links. -->
+    <nav class="hauptnavigation" aria-label="Hauptnavigation">
+      <a href="#training" data-ansicht="training">
+        <span class="nav-icon"><svg class="icon" aria-hidden="true"><use href="#i-clipboard"></use></svg></span>
+        <span>Training</span>
+      </a>
+      <a href="#verlauf" data-ansicht="verlauf">
+        <span class="nav-icon"><svg class="icon" aria-hidden="true"><use href="#i-history"></use></svg></span>
+        <span>Verlauf</span>
+      </a>
+      <a href="#kinder" data-ansicht="kinder">
+        <span class="nav-icon"><svg class="icon" aria-hidden="true"><use href="#i-users"></use></svg></span>
+        <span>Kinder</span>
+      </a>
+      <a href="#verwaltung" data-ansicht="verwaltung">
+        <span class="nav-icon"><svg class="icon" aria-hidden="true"><use href="#i-sliders"></use></svg></span>
+        <span>Verwaltung</span>
+      </a>
+    </nav>
+
+    <!-- ============ Inhalt ============
+         Hier zeichnen die Ansichten (js/ansicht-*.js) ihren Inhalt hinein. -->
+    <main id="inhalt" tabindex="-1">
+      <p class="laedt">Lädt …</p>
+    </main>
+  </div>
+
+  <!-- Kurze Meldungen ("Gespeichert!") erscheinen hier. aria-live lässt
+       Vorleseprogramme sie automatisch vorlesen. -->
+  <div id="meldungen" class="meldungen" aria-live="polite"></div>
+
+  <!-- Wird nur beim Drucken sichtbar (siehe @media print im CSS) -->
+  <div id="druckbereich"></div>
+
+  <noscript>
+    <p class="noscript">Diese App braucht JavaScript. Bitte aktiviere JavaScript im Browser.</p>
+  </noscript>
+
+  <!-- ============ Icons ============
+       Ein "SVG-Sprite": Alle Icons einmal definiert, überall per
+       <svg><use href="#i-name"></use></svg> wiederverwendet. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="m9 14 2 2 4-4" /></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M20 21a8 8 0 0 0-16 0" /></symbol>
+    <symbol id="i-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6" /><path d="M22 11h-6" /></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7" /><path d="M4 10V3" /><path d="M12 21v-9" /><path d="M12 8V3" /><path d="M20 21v-5" /><path d="M20 12V3" /><path d="M1 14h6" /><path d="M9 8h6" /><path d="M17 16h6" /></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></symbol>
+    <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 9V2h12v7" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /><path d="M12 15V3" /></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m17 8-5-5-5 5" /><path d="M12 3v12" /></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8" /><path d="M12 17v4" /></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" /></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5v14a9 3 0 0 0 18 0V5" /><path d="M3 12a9 3 0 0 0 18 0" /></symbol>
+    <symbol id="i-beaker" viewBox="0 0 24 24"><path d="M4.5 3h15" /><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3" /><path d="M6 14h12" /></symbol>
+    <symbol id="i-list-checks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4" /><path d="m3 7 2 2 4-4" /><path d="M13 6h8" /><path d="M13 12h8" /><path d="M13 18h8" /></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4" /><path d="M12 16h.01" /></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></symbol>
+  </svg>
+
+  <!-- ============ JavaScript ============
+       Die Reihenfolge ist wichtig: Die Grundlagen (Hilfe, Speicher) kommen
+       zuerst, app.js kommt zuletzt, weil es beim Laden sofort startet
+       und dafür alle anderen Teile braucht. -->
+  <script src="js/hilfe.js"></script>
+  <script src="js/speicher.js"></script>
+  <script src="js/testdaten.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/ansicht-training.js"></script>
+  <script src="js/ansicht-verlauf.js"></script>
+  <script src="js/ansicht-kinder.js"></script>
+  <script src="js/ansicht-verwaltung.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
